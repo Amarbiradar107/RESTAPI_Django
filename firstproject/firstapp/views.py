@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+import requests
 from rest_framework.views import APIView
 
 from .models import Movie
@@ -16,7 +17,6 @@ def home(request):
         return Response(movieserializer.data)
 
     if request.method == 'POST':
-
         movieserializer = MovieSerializer(data=request.data)
         if movieserializer.is_valid():
             movieserializer.save()
@@ -25,7 +25,6 @@ def home(request):
 
 @api_view(['GET','PUT','DELETE'])
 def movie_detail(request,id):
-
     if request.method == "GET":
         try:
             movie = Movie.objects.get(id=id)
@@ -55,6 +54,34 @@ def movie_detail(request,id):
 
         movie.delete()
         return Response(status=204)
+
+@api_view(['POST'])
+def import_movies(request):
+    """
+    Fetch JSON array from external API and save to DB.
+    Request body (optional): {"url": "https://example.com/api/movies/"}
+    """
+    url = request.data.get('https://fakestoreapi.com/products')  # change default to real endpoint
+    try:
+        resp = requests.get(url, timeout=10)
+        resp.raise_for_status()
+        payload = resp.json()
+    except requests.RequestException as e:
+        return Response({'error': 'Failed to fetch external API', 'details': str(e)}, status=502)
+    if not isinstance(payload, list):
+        return Response({'error': 'Expected a list/array from external API'}, status=400)
+
+    created = []
+    errors = []
+    for item in payload:
+        serializer = MovieSerializer(data=item)
+        if serializer.is_valid():
+            serializer.save()
+            created.append(serializer.data)
+        else:
+            errors.append({'item': item, 'errors': serializer.errors})
+
+    return Response({'created_count': len(created), 'created': created, 'errors': errors})
 
 
 

@@ -16,6 +16,7 @@ class MovieSerializer(serializers.Serializer):
         return movie
 
     def update(self, instance, validated_data):
+        instance.id = validated_data.get('id', instance.id)
         instance.title = validated_data.get('title', instance.title)
         instance.description = validated_data.get('description', instance.description)
         instance.active = validated_data.get('active', instance.active)

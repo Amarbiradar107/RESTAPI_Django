@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import requests
@@ -13,7 +13,6 @@ def home(request):
     if request.method == 'GET':
         movie = Movie.objects()
         movieserializer = MovieSerializer(movie, many=True)
-        print(movieserializer.data)
         return Response(movieserializer.data)
 
     if request.method == 'POST':
@@ -30,7 +29,6 @@ def movie_detail(request,id):
             movie = Movie.objects.get(id=id)
         except Movie.DoesNotExist:
             return Response({'error': 'Movie not found'}, status=404)
-
         movieserializer = MovieSerializer(movie)
         return Response(movieserializer.data)
 
@@ -39,11 +37,10 @@ def movie_detail(request,id):
             movie = Movie.objects.get(id=id)
         except Movie.DoesNotExist:
             return Response({'error': 'Movie not found'}, status=404)
-
         movieserializer = MovieSerializer(movie, data=request.data)
         if movieserializer.is_valid():
             movieserializer.save()
-            return Response(movieserializer.data)
+            return Response(movieserializer.data,status=200)
         return Response(movieserializer.errors, status=400)
 
     if request.method == "DELETE":

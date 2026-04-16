@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from .models import Todo
-from .serializers import TodoSerializer
+from .models import Todo,User
+from .serializers import TodoSerializer,UserSerializer
 from rest_framework.decorators import api_view
 
 # Create your views here.
@@ -51,3 +52,23 @@ def todo_detail(request, id):
             return Response(status=404)
         todo.delete()
         return Response(status=204)
+
+
+
+
+class user_detail(APIView):
+    def get(self, request):
+        user_details = User.objects()
+        user_serializer = UserSerializer(user_details, many=True)
+        return Response(user_serializer.data)
+
+    def post(self,request):
+        user_serializer = UserSerializer(data=request.data)
+        if user_serializer.is_valid():
+            user_serializer.save()
+            return Response(user_serializer.data, status=201)
+        return Response(user_serializer.errors, status=400)
+
+
+
+

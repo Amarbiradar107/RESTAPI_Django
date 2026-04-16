@@ -1,5 +1,5 @@
 """
-URL configuration for firstproject project.
+URL configuration for realproject project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.2/topics/http/urls/
@@ -18,11 +18,6 @@ from django.contrib import admin
 from django.urls import path,include
 
 urlpatterns = [
-    # path('admin/', admin.site.urls),
-    path('mongo/', include('firstapp.urls')),
-    path('todo/',include('testapp.urls')),
-    path('admin/',include('user_detail.urls')),
-    path('user/',include('userinfo.urls')),
-    path('order/',include('orderinfo.urls')),
-
+    path('admin/', admin.site.urls),
+    path("hp/",include('hp_prj.urls'))
 ]
